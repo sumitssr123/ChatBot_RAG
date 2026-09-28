@@ -161,3 +161,7 @@ The backend will be running at `http://127.0.0.1:8000`. You can also view intera
 | **Why overlap chunks?** | Overlap (e.g. 100 characters) prevents sentences or ideas from being cut in half at chunk boundaries. |
 | **Why FAISS?** | FAISS (Facebook AI Similarity Search) is an ultra-fast, lightweight in-memory vector index that does exact or approximate nearest neighbor search with zero database overhead. |
 | **How to prevent hallucinations?** | By constraining the system prompt with: *"Answer ONLY based on the context. If not present, reply 'I couldn't find this information in the uploaded document.'"* |
+
+## Live Demo
+
+https://chatbot-suni.onrender.com
