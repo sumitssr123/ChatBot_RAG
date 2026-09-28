@@ -1,0 +1,15 @@
+﻿# Python
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+
+# Uploaded files
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+.DS_Store
