@@ -1,3 +1,8 @@
+# Simple RAG Chatbot
+
+## Demo
+
+https://chatbot-suni.onrender.com
 # Simple RAG Chatbot 📄🤖
 
 A minimalist, beginner-friendly **Retrieval-Augmented Generation (RAG)** chatbot built with **FastAPI**, **React.js**, **FAISS**, and **Google Gemini**.
@@ -165,3 +170,4 @@ The backend will be running at `http://127.0.0.1:8000`. You can also view intera
 ## Live Demo
 
 https://chatbot-suni.onrender.com
+
