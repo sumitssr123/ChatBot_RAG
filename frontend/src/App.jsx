@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 
-const API_BASE = 'http://127.0.0.1:8000';
+// In dev mode, defaults to localhost:8000. In production, uses VITE_API_BASE_URL or relative path.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '')).replace(/\/$/, '');
 
 function App() {
   const [file, setFile] = useState(null);
@@ -57,7 +58,7 @@ function App() {
         setUploadStatus(`Upload failed: ${data.detail || 'Error uploading file'}`);
       }
     } catch (err) {
-      setUploadStatus(`Error: ${err.message}. Is the backend running?`);
+      setUploadStatus(`Connection error: ${err.message}. (Note: If using Render free tier, the backend server may take ~50-60s to wake up on the first request.)`);
     } finally {
       setIsUploading(false);
     }
@@ -99,7 +100,7 @@ function App() {
         ...prev,
         {
           sender: 'bot',
-          text: `Connection error: ${err.message}. Please check if the backend is running.`,
+          text: `Connection error: ${err.message}. If using Render free tier, the backend server may take ~50-60s to wake up on the first request. Please wait a moment and try again.`,
         },
       ]);
     } finally {

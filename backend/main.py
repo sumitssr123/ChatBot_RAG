@@ -4,6 +4,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from rag import SimpleRAG
@@ -99,6 +101,27 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/health")
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint for Render monitoring."""
+    return {"status": "ok", "app": "Simple RAG Chatbot"}
+
+
+# Serve frontend build if dist folder exists (for unified deployment on Render)
+FRONTEND_DIST = Path(__file__).parent.parent / "frontend" / "dist"
+if FRONTEND_DIST.exists():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        target_path = FRONTEND_DIST / full_path
+        if full_path and target_path.is_file():
+            return FileResponse(target_path)
+        return FileResponse(FRONTEND_DIST / "index.html")
+
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

@@ -1,9 +1,6 @@
-# Simple RAG Chatbot
-
-## Demo
-
-https://chatbot-suni.onrender.com
 # Simple RAG Chatbot 📄🤖
+
+[![Live Demo](https://img.shields.io/badge/Demo-Live%20on%20Render-blue)](https://chatbot-suni.onrender.com)
 
 A minimalist, beginner-friendly **Retrieval-Augmented Generation (RAG)** chatbot built with **FastAPI**, **React.js**, **FAISS**, and **Google Gemini**.
 
