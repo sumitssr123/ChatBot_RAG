@@ -30,16 +30,54 @@ body {
 
 /* Header */
 .app-header {
-  padding: 16px 20px;
+  padding: 14px 20px;
   background-color: #ffffff;
-  border-bottom: 1px solid #eee;
-  text-align: center;
+  border-bottom: 1px solid #e1e4e8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .app-header h1 {
   font-size: 1.25rem;
   font-weight: 600;
   color: #1a1a1a;
+}
+
+.header-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #eef2ff;
+  color: #4f46e5;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  border: 1px solid #c7d2fe;
+}
+
+.clear-btn {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clear-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #9ca3af;
 }
 
 /* Upload Section */
@@ -79,6 +117,54 @@ body {
   text-overflow: ellipsis;
 }
 
+.active-doc-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  max-width: 80%;
+}
+
+.doc-icon {
+  font-size: 0.95rem;
+}
+
+.doc-name {
+  font-weight: 500;
+  color: #166534;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.chunks-tag {
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.doc-remove-btn {
+  background: none;
+  border: none;
+  color: #86efac;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.doc-remove-btn:hover {
+  color: #dc2626;
+}
+
 /* Chat Area */
 .chat-window {
   flex: 1;
@@ -92,12 +178,76 @@ body {
 
 .empty-chat {
   display: flex;
+  flex-direction: column;
   height: 100%;
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: #888;
-  font-size: 0.95rem;
+  color: #6b7280;
+  font-size: 0.92rem;
+  padding: 20px;
+}
+
+.empty-icon {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+}
+
+.empty-chat h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 6px;
+}
+
+.empty-chat p {
+  max-width: 420px;
+  line-height: 1.5;
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.prompt-suggestions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.suggestions-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9ca3af;
+}
+
+.chips-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.prompt-chip {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.prompt-chip:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+  transform: translateY(-1px);
 }
 
 .message-row {
