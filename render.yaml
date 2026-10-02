@@ -1,13 +1,30 @@
 services:
+  # 1. Backend Web Service (FastAPI + Python)
   - type: web
-    name: simple-rag-chatbot
+    name: chatbot-rag-backend
     runtime: python
     region: oregon
     plan: free
-    buildCommand: "cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt"
-    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: GEMINI_API_KEY
         sync: false
+
+  # 2. Frontend Static Site (React + Vite)
+  - type: static
+    name: chatbot-rag-frontend
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: chatbot-rag-backend
+          property: host
