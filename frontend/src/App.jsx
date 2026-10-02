@@ -4,8 +4,15 @@ import './App.css';
 // In dev mode, defaults to localhost:8000. In production, uses VITE_API_BASE_URL or relative path.
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '')).replace(/\/$/, '');
 
+const SUGGESTED_PROMPTS = [
+  "Summarize the main points of this document.",
+  "What are the key takeaways?",
+  "List any important dates, statistics, or metrics.",
+];
+
 function App() {
   const [file, setFile] = useState(null);
+  const [docInfo, setDocInfo] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
@@ -13,6 +20,7 @@ function App() {
   const [inputQuestion, setInputQuestion] = useState('');
   const [isLoadingAnswer, setIsLoadingAnswer] = useState(false);
 
+  const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll chat area to bottom when new messages arrive
@@ -46,6 +54,7 @@ function App() {
       const data = await response.json();
 
       if (response.ok) {
+        setDocInfo({ filename: data.filename, chunksCount: data.chunks_count });
         setUploadStatus(`Ready: "${data.filename}" (${data.chunks_count} chunks indexed)`);
         setMessages((prev) => [
           ...prev,
@@ -62,6 +71,25 @@ function App() {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // Handle resetting active document session
+  const handleResetDocument = async () => {
+    try {
+      await fetch(`${API_BASE}/clear`, { method: 'POST' });
+    } catch {
+      // Backend may be offline; still clear local state
+    }
+    setFile(null);
+    setDocInfo(null);
+    setUploadStatus('');
+    setMessages([]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // Handle clearing chat history
+  const handleClearChat = () => {
+    setMessages([]);
   };
 
   // Handle sending a question
@@ -112,30 +140,67 @@ function App() {
     <div className="app-container">
       {/* Header */}
       <header className="app-header">
-        <h1>Simple RAG Chatbot</h1>
+        <div className="header-title">
+          <h1>Simple RAG Chatbot</h1>
+          <span className="header-badge">AI Powered</span>
+        </div>
+        {messages.length > 0 && (
+          <button className="clear-btn" onClick={handleClearChat} title="Clear conversation">
+            Clear Chat
+          </button>
+        )}
       </header>
 
       {/* PDF Upload Section */}
       <section className="upload-section">
         <label className="file-input-label">
-          {isUploading ? 'Indexing PDF...' : 'Choose PDF'}
+          {isUploading ? 'Indexing PDF...' : docInfo ? 'Change PDF' : 'Choose PDF'}
           <input
+            ref={fileInputRef}
             type="file"
             accept=".pdf"
             onChange={handleFileUpload}
             disabled={isUploading}
           />
         </label>
-        <span className="upload-status">
-          {uploadStatus || 'No PDF uploaded yet.'}
-        </span>
+
+        {docInfo ? (
+          <div className="active-doc-badge">
+            <span className="doc-icon">📄</span>
+            <span className="doc-name">{docInfo.filename}</span>
+            <span className="chunks-tag">{docInfo.chunksCount} chunks</span>
+            <button className="doc-remove-btn" onClick={handleResetDocument} title="Remove document">✕</button>
+          </div>
+        ) : (
+          <span className="upload-status">
+            {uploadStatus || 'No PDF uploaded yet.'}
+          </span>
+        )}
       </section>
 
       {/* Chat Area */}
       <section className="chat-window">
         {messages.length === 0 ? (
           <div className="empty-chat">
-            <p>Upload a PDF above, then ask questions about its content here.</p>
+            <div className="empty-icon">💬</div>
+            <h3>Ask anything about your documents</h3>
+            <p>Upload a PDF document above to index its contents and start asking context-aware questions.</p>
+            {docInfo && (
+              <div className="prompt-suggestions">
+                <span className="suggestions-label">Try asking:</span>
+                <div className="chips-container">
+                  {SUGGESTED_PROMPTS.map((prompt, idx) => (
+                    <button
+                      key={idx}
+                      className="prompt-chip"
+                      onClick={() => setInputQuestion(prompt)}
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           messages.map((msg, idx) => (
@@ -158,7 +223,7 @@ function App() {
       <form className="input-form" onSubmit={handleSendMessage}>
         <input
           type="text"
-          placeholder="Ask a question about the document..."
+          placeholder={docInfo ? "Ask a question about the document..." : "Upload a PDF first, then ask questions..."}
           value={inputQuestion}
           onChange={(e) => setInputQuestion(e.target.value)}
           disabled={isLoadingAnswer}
