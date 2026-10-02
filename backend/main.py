@@ -34,6 +34,9 @@ app.add_middleware(
 UPLOAD_DIR = Path(__file__).parent / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
+# Maximum allowed PDF upload size (15 MB)
+MAX_FILE_SIZE = 15 * 1024 * 1024
+
 # Initialize RAG engine instance
 rag_engine = SimpleRAG(api_key=api_key or "")
 
@@ -46,17 +49,28 @@ class ChatRequest(BaseModel):
 async def upload_pdf(file: UploadFile = File(...)):
     """
     1. Receive PDF file
-    2. Save temporarily to uploads/
-    3. Extract text, split into chunks, embed, and index with FAISS
+    2. Validate file type and size
+    3. Save to uploads/
+    4. Extract text, split into chunks, embed, and index with FAISS
     """
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+
+    contents = await file.read()
+    if len(contents) == 0:
+        raise HTTPException(status_code=400, detail="Uploaded PDF file is empty.")
+    if len(contents) > MAX_FILE_SIZE:
+        max_mb = MAX_FILE_SIZE // (1024 * 1024)
+        raise HTTPException(
+            status_code=400,
+            detail=f"File size exceeds the {max_mb}MB limit. Please upload a smaller PDF."
+        )
 
     # Save uploaded file
     file_path = UPLOAD_DIR / file.filename
     try:
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(contents)
 
         # Refresh API key if it was updated in environment
         current_key = os.getenv("GEMINI_API_KEY")
@@ -101,11 +115,25 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/clear")
+async def clear_session():
+    """Clear currently indexed document and chunks from memory."""
+    rag_engine.chunks = []
+    rag_engine.index = None
+    return {"message": "Document session and FAISS index cleared successfully."}
+
+
 @app.get("/health")
 @app.get("/api/health")
 async def health_check():
-    """Health check endpoint for Render monitoring."""
-    return {"status": "ok", "app": "Simple RAG Chatbot"}
+    """Health check endpoint for Render monitoring and client status checks."""
+    return {
+        "status": "healthy",
+        "app": "Simple RAG Chatbot",
+        "version": "1.1.0",
+        "has_document": len(rag_engine.chunks) > 0,
+        "chunks_indexed": len(rag_engine.chunks),
+    }
 
 
 # Serve frontend build if dist folder exists (for unified deployment on Render)
